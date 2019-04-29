@@ -1,0 +1,134 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # In[4]:\
+import os\
+import time\
+import operator\
+import json\
+\
+dirpath = "../predata/"\
+\
+file_list_created = os.listdir("outputs/")\
+\
+file_list_trimmed = []\
+for file_created in file_list_created:\
+\'a0\'a0\'a0\'a0file_list_trimmed.append(file_created.split('.')[0])\
+\
+# In[4]:\
+\
+files_list = []\
+for path, dirs, files in os.walk(dirpath):\
+\'a0\'a0\'a0\'a0files_list.extend([(os.path.join(path, file), os.path.getsize(os.path.join(path,file))) for file in files])\
+\
+files_list.sort(key=operator.itemgetter(1))\
+\
+collected_list = []\
+current_list = []\
+current_total = 0\
+alts = []\
+\
+for file in files_list:\
+\'a0\'a0\'a0\'a0fname = file[0].split("/")[1]\
+\'a0\'a0\'a0\'a0if fname not in file_list_trimmed:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0if file[1]!=0 or fname not in file_list_trimmed:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0if len(current_list)==4:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0collected_list.append(current_list)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0current_list = []\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0current_total = 0\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0current_list.append(file[0])\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0current_total += file[1]\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0else:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0current_list.append(file[0])\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0current_total += file[1]\
+\
+\
+collected_list.append(current_list)\
+print(len(collected_list))\
+print(len(alts))\
+print(multiprocessing.cpu_count())\
+\
+\
+# In[4]:\
+def process_all_contents_internal(ln):\
+\'a0\'a0\'a0\'a0if not isinstance(ln, str):\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0pr_line = json.loads(ln.decode())\
+\'a0\'a0\'a0\'a0else:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0try:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0pr_line = json.loads(ln)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0except json.decoder.JSONDecodeError:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0pr_line = None\
+\
+\'a0\'a0\'a0\'a0if pr_line is not None:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0if isinstance(pr_line, dict):\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line = dict()\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['text'] = pr_line.get(u'text', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['timestamp_ms'] = pr_line.get(u'timestamp_ms', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['created_at'] = pr_line.get(u'created_at', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['favorite_count'] = pr_line.get(u'favorite_count', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0if new_line['created_at'] != -1:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0return new_line\
+\
+\
+ In[4]:\
+ def process_file(file):\
+\'a0\'a0\'a0\'a0\'a0fp = open(file, 'r')\
+\'a0\'a0\'a0\'a0\'a0contents = []\
+\'a0\'a0\'a0\'a0\'a0print(file)\
+\'a0\'a0\'a0\'a0\'a0\
+\'a0\'a0\'a0\'a0\'a0for line in fp:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0if not isinstance(line, str):\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0contents.append(json.loads(line.decode()))\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0else:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0try:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0contents.append(json.loads(line))\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0except json.decoder.JSONDecodeError:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0pass\
+\'a0\'a0\'a0\'a0\'a0fp.close()\
+\
+\'a0\'a0\'a0\'a0\'a0new_contents = []\
+\'a0\'a0\'a0\'a0\'a0for line in contents:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0if isinstance(line, dict):\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line = dict()\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['text'] = line.get(u'text', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['timestamp_ms'] = line.get(u'timestamp_ms', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['created_at'] = line.get(u'created_at', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_line['favorite_count'] = line.get(u'favorite_count', -1)\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0new_contents.append(new_line)\
+\
+\'a0\'a0\'a0\'a0\'a0final_contents = []\
+\'a0\'a0\'a0\'a0\'a0for line in new_contents:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0if line['created_at'] != -1:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0final_contents.append(line)\
+\'a0\'a0\'a0\'a0\'a0file_path = file.split('/')\
+\'a0\'a0\'a0\'a0\'a0fp = open("tests/" + file_path[-1] + ".json", 'w')\
+\'a0\'a0\'a0\'a0\'a0for line in final_contents:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0fp.write(json.dumps(line))\
+\
+\'a0\'a0\'a0\'a0\'a0fp.close()\
+\'a0\'a0\'a0\'a0\'a0print(file + "\'a0\'a0done: ")\
+\
+\
+# In[4]:\
+i = 0\
+\
+outer_start = time.time()\
+for files in collected_list:\
+\'a0\'a0\'a0\'a0i += 1\
+\'a0\'a0\'a0\'a0start = time.time()\
+\'a0\'a0\'a0\'a0# processes = []\
+\'a0\'a0\'a0\'a0for file_name in files:\
+\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0process_file(file_name)\
+\
+\'a0\'a0\'a0\'a0print(time.time()-start)\
+\'a0\'a0\'a0\'a0print(i)\
+\'a0\'a0\'a0\'a0if i % 1 == 0:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0print("next")\
+\'a0\'a0\'a0\'a0if i % 100 == 0:\
+\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0break\
+print(time.time()-outer_start)}
